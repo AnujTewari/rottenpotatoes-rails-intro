@@ -12,40 +12,41 @@ class MoviesController < ApplicationController
 
   def index
 
-    if((params[:rating]==nil||session[:rating]=nil)&&(params[:sort]==nil||session[:sort]=nil))
-	redirect_to movies_path({:sort => session[:sort],:ratings => session[:ratings]}) and return
-    end	
-    if(params[:ratings] != nil)
+    if(params[:ratings] != nil && session[:ratings]!=params[:ratings])
         session[:ratings] = params[:ratings]
     end
-    if(params[:sort] != nil)
+    if(params[:sort] != nil && session[:sort]!=params[:sort])
         session[:sort] = params[:sort]
-    end
+    end 
+
+    new_value = { :sort => session[:sort], :ratings => session[:ratings] }
+    pre_value = { :sort => params[:sort], :ratings => params[:ratings] }
     
-    	
-    params[:ratings] = session[:ratings]
-    params[:sort] = session[:sort]
-	
-    if(params[:ratings]==nil)
+    if (new_value != pre_value)
+      redirect_to movies_path(new_value)
+    end      
+    
+    if(session[:ratings]==nil)
 	@filtered_ratings = Movie.all_ratings
     else
-	@filtered_ratings = params[:ratings].keys
+	@filtered_ratings = session[:ratings].keys
     end			
-    if(params[:sort]=='title')
+    if(session[:sort]=='title')
 	@title_header='hilite'
-	if(params[:ratings])
-		@movies = Movie.where("rating IN (?)",@filtered_ratings).order('title') 	else		
+	if(session[:ratings])
+		@movies = Movie.where("rating IN (?)",@filtered_ratings).order('title')
+	else		
 		@movies=Movie.all.order('title')
 	end
-    elsif(params[:sort]=='release_date')
+    elsif(session[:sort]=='release_date')
 	@release_date_header='hilite'
-	if(params[:ratings])
+	if(session[:ratings])
 		@movies = Movie.where("rating IN (?)",@filtered_ratings).order('release_date')
  	else		
 		@movies=Movie.all.order('release_date')
 	end
     else
-	if(params[:ratings])
+	if(session[:ratings])
 		@movies = Movie.where("rating IN (?)",@filtered_ratings)
 	else
     		@movies = Movie.all
