@@ -11,14 +11,41 @@ class MoviesController < ApplicationController
   end
 
   def index
+
+    if(params[:ratings] != nil)
+        session[:ratings] = params[:ratings]
+    end
+    if(params[:sort] != nil)
+        session[:sort] = params[:sort]
+    end
+    
+    params[:ratings] = session[:ratings]
+    params[:sort] = session[:sort]
+	
+    if(params[:ratings]==nil)
+	@filtered_ratings = Movie.all_ratings
+    else
+	@filtered_ratings = params[:ratings].keys
+    end			
     if(params[:sort]=='title')
 	@title_header='hilite'
-	@movies=Movie.all.order('title')
+	if(params[:ratings])
+		@movies = Movie.where("rating IN (?)",@filtered_ratings).order('title') 	else		
+		@movies=Movie.all.order('title')
+	end
     elsif(params[:sort]=='release_date')
 	@release_date_header='hilite'
-	@movies=Movie.all.order('release_date')
-    else 	
-    	@movies = Movie.all
+	if(params[:ratings])
+		@movies = Movie.where("rating IN (?)",@filtered_ratings).order('release_date')
+ 	else		
+		@movies=Movie.all.order('release_date')
+	end
+    else
+	if(params[:ratings])
+		@movies = Movie.where("rating IN (?)",@filtered_ratings)
+	else
+    		@movies = Movie.all
+	end
     end
     @all_ratings=Movie.all_ratings	
   end
