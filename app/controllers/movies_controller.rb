@@ -23,6 +23,7 @@ class MoviesController < ApplicationController
     pre_value = { :sort => params[:sort], :ratings => params[:ratings] }
     
     if (new_value != pre_value)
+      flash.keep 	
       redirect_to movies_path(new_value)
     end      
     
